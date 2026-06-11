@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TUGAS ASAT IPA SEMESTER 2 2026 – IPA SMP NEGERI 37 SEMARANG</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Noto+Sans+Math&display=swap"/>
+<!-- KaTeX for math rendering -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css"/>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<!-- Marked.js for markdown -->
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+<style>
+/* ─── RESET & ROOT ─────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#22253a;--surface3:#2a2e45;
+  --accent:#6c63ff;--accent2:#a78bfa;--accent-glow:rgba(108,99,255,.35);
+  --text:#e8eaf6;--text2:#9fa8da;--text3:#5c6bc0;
+  --border:#2e3358;--border2:#3d4278;
+  --success:#4caf82;--error:#ef5350;--warn:#ffb74d;
+  --radius:14px;--radius-sm:8px;
+  --shadow:0 8px 32px rgba(0,0,0,.55);
+  --font:'Roboto',sans-serif;
+  --math-font:'Noto Sans Math','Cambria Math',serif;
+}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6}
+a{color:var(--accent2)}
+
+/* ─── PAGE LAYOUT ──────────────────────────────────────────────────── */
+.page-header{background:linear-gradient(135deg,#1a1d27,#22253a);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:12px}
+.page-header h1{font-size:1.1rem;font-weight:700;color:var(--accent2)}
+.page-header .badge{background:var(--accent);color:#fff;font-size:.7rem;padding:2px 8px;border-radius:20px;font-weight:600}
+.main-content{max-width:900px;margin:0 auto;padding:24px 16px 120px}
+
+/* ─── SOAL CARD ────────────────────────────────────────────────────── */
+.soal-intro{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:24px;font-size:.95rem;color:var(--text2)}
+.soal-intro h2{color:var(--accent2);font-size:1rem;margin-bottom:8px}
+.soal-intro p{margin-bottom:6px}
+.soal-grid{display:grid;grid-template-columns:1fr;gap:16px}
+.soal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;transition:border-color .2s,box-shadow .2s}
+.soal-card:hover{border-color:var(--border2);box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.soal-number{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:var(--accent);color:#fff;border-radius:50%;font-size:.8rem;font-weight:700;margin-bottom:8px}
+.soal-topic{font-size:.75rem;color:var(--accent2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;font-weight:600}
+.soal-text{color:var(--text);font-size:.93rem;margin-bottom:12px;line-height:1.7}
+.soal-options{list-style:none;display:flex;flex-direction:column;gap:4px}
+.soal-options li{font-size:.88rem;color:var(--text2);padding:4px 0}
+.soal-options li span{display:inline-block;width:22px;font-weight:600;color:var(--accent2)}
+.soal-uraian{font-size:.88rem;color:var(--text3);font-style:italic;margin-top:8px}
+.btn-ask-ai{margin-top:12px;background:linear-gradient(135deg,var(--accent),#9b59b6);color:#fff;border:none;padding:6px 14px;border-radius:20px;font-size:.8rem;font-weight:600;cursor:pointer;transition:opacity .2s,transform .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-ask-ai:hover{opacity:.9;transform:translateY(-1px)}
+.btn-ask-ai svg{width:14px;height:14px}
+
+/* ─── FLOATING AI BUTTON ───────────────────────────────────────────── */
+#ai-fab{
+  position:fixed;bottom:28px;right:28px;z-index:9998;
+  width:60px;height:60px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),#9b59b6);
+  border:none;cursor:pointer;
+  box-shadow:0 6px 24px var(--accent-glow),0 2px 8px rgba(0,0,0,.4);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700;font-size:.85rem;
+  transition:transform .2s,box-shadow .2s;
+  user-select:none;
+}
+#ai-fab:hover{transform:scale(1.08);box-shadow:0 10px 32px var(--accent-glow)}
+#ai-fab.active{background:linear-gradient(135deg,#9b59b6,var(--accent))}
+#ai-fab-label{position:fixed;bottom:94px;right:28px;z-index:9997;background:var(--surface2);color:var(--text);font-size:.75rem;padding:4px 10px;border-radius:20px;pointer-events:none;white-space:nowrap;box-shadow:var(--shadow)}
+
+/* ─── AI PANEL ─────────────────────────────────────────────────────── */
+#ai-panel{
+  position:fixed;z-index:9999;
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  display:none;flex-direction:column;
+  overflow:hidden;
+  min-width:340px;min-height:420px;
+  width:420px;height:580px;
+  bottom:100px;right:28px;
+  resize:none; /* manual resize via handle */
+}
+#ai-panel.visible{display:flex}
+
+/* Header */
+#ai-panel-header{
+  background:linear-gradient(135deg,var(--surface2),var(--surface3));
+  border-bottom:1px solid var(--border);
+  padding:12px 14px;display:flex;align-items:center;gap:8px;
+  cursor:grab;user-select:none;flex-shrink:0;
+}
+#ai-panel-header:active{cursor:grabbing}
+#ai-panel-title{font-size:.88rem;font-weight:700;color:var(--accent2);flex:1}
+.panel-btn{background:none;border:none;color:var(--text2);cursor:pointer;padding:4px;border-radius:6px;display:flex;align-items:center;transition:color .2s,background .2s}
+.panel-btn:hover{background:var(--border);color:var(--text)}
+
+/* Toolbar */
+#ai-toolbar{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px;flex-shrink:0;background:var(--surface2)}
+.toolbar-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.toolbar-label{font-size:.72rem;color:var(--text3);white-space:nowrap}
+.ai-select{background:var(--surface3);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius-sm);padding:4px 8px;font-size:.78rem;cursor:pointer;flex:1;min-width:0}
+.ai-select:focus{outline:2px solid var(--accent)}
+.soal-select{background:var(--surface3);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius-sm);padding:4px 8px;font-size:.78rem;cursor:pointer;width:80px}
+.btn-load-soal{background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:4px 10px;font-size:.75rem;cursor:pointer;white-space:nowrap;font-weight:600;transition:opacity .2s}
+.btn-load-soal:hover{opacity:.85}
+
+/* Messages */
+#ai-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+#ai-messages::-webkit-scrollbar{width:4px}
+#ai-messages::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.msg{max-width:95%;border-radius:var(--radius-sm);padding:10px 13px;font-size:.87rem;line-height:1.7;word-break:break-word}
+.msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;border-bottom-right-radius:4px}
+.msg.ai{align-self:flex-start;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px}
+.msg.ai pre{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;margin:8px 0;overflow-x:auto;font-size:.82rem}
+.msg.ai code{background:rgba(108,99,255,.18);padding:1px 5px;border-radius:4px;font-family:monospace;font-size:.82rem}
+.msg.ai pre code{background:none;padding:0}
+.msg.ai table{border-collapse:collapse;width:100%;margin:8px 0;font-size:.83rem}
+.msg.ai th,.msg.ai td{border:1px solid var(--border2);padding:5px 9px;text-align:left}
+.msg.ai th{background:var(--surface3);color:var(--accent2)}
+.msg.ai h1,.msg.ai h2,.msg.ai h3{color:var(--accent2);margin:10px 0 4px}
+.msg.ai ul,.msg.ai ol{padding-left:18px}
+.msg.ai li{margin-bottom:2px}
+/* Math rendering */
+.msg.ai .katex{font-size:1.05em;font-family:var(--math-font)}
+.msg.ai .katex-display{margin:10px 0;overflow-x:auto}
+.msg-time{font-size:.68rem;color:var(--text3);margin-top:4px;text-align:right}
+
+/* File preview in messages */
+.attached-files{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.file-chip{background:rgba(108,99,255,.2);border:1px solid var(--border2);border-radius:20px;padding:3px 10px;font-size:.73rem;color:var(--accent2);display:inline-flex;align-items:center;gap:5px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-chip svg{flex-shrink:0}
+
+/* Typing indicator */
+.typing{display:flex;align-items:center;gap:5px;padding:8px 12px}
+.typing span{width:7px;height:7px;background:var(--accent2);border-radius:50%;animation:bounce .9s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-7px)}}
+
+/* Input area */
+#ai-input-area{
+  border-top:1px solid var(--border);
+  padding:10px 12px;
+  display:flex;flex-direction:column;gap:8px;
+  background:var(--surface2);
+  flex-shrink:0;
+}
+#ai-file-preview{display:flex;flex-wrap:wrap;gap:6px;min-height:0}
+.fpreview-chip{
+  background:var(--surface3);border:1px solid var(--border2);border-radius:20px;
+  padding:3px 8px 3px 10px;font-size:.72rem;color:var(--text2);
+  display:inline-flex;align-items:center;gap:5px;max-width:160px;
+}
+.fpreview-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fpreview-remove{background:none;border:none;color:var(--text3);cursor:pointer;padding:0;line-height:1;font-size:1rem;flex-shrink:0}
+.fpreview-remove:hover{color:var(--error)}
+
+.input-row{display:flex;gap:8px;align-items:flex-end}
+#ai-text-input{
+  flex:1;background:var(--surface3);border:1px solid var(--border2);
+  border-radius:var(--radius-sm);color:var(--text);
+  padding:9px 12px;font-size:.87rem;resize:none;
+  font-family:var(--font);min-height:40px;max-height:130px;
+  transition:border-color .2s;
+  line-height:1.5;
+}
+#ai-text-input:focus{outline:none;border-color:var(--accent)}
+#ai-text-input::placeholder{color:var(--text3)}
+.btn-upload{background:var(--surface3);border:1px solid var(--border2);color:var(--accent2);border-radius:var(--radius-sm);width:38px;height:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s;flex-shrink:0}
+.btn-upload:hover{background:var(--border);border-color:var(--accent)}
+.btn-send{background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;border:none;border-radius:var(--radius-sm);width:38px;height:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s,transform .2s}
+.btn-send:hover{opacity:.9;transform:scale(1.05)}
+.btn-send:disabled{opacity:.4;cursor:not-allowed;transform:none}
+#file-input-hidden{display:none}
+
+/* Resize handle */
+#ai-resize-handle{
+  position:absolute;bottom:0;right:0;width:18px;height:18px;cursor:se-resize;
+  display:flex;align-items:flex-end;justify-content:flex-end;padding:3px;
+  color:var(--text3);
+}
+#ai-resize-handle:hover{color:var(--accent2)}
+
+/* ─── SCROLLBAR ────────────────────────────────────────────────────── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* ─── TOAST ────────────────────────────────────────────────────────── */
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:8px 18px;border-radius:20px;font-size:.82rem;z-index:99999;transition:transform .3s,opacity .3s;opacity:0;pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ─── RESPONSIVE ───────────────────────────────────────────────────── */
+@media(max-width:600px){
+  #ai-panel{width:96vw!important;right:2vw!important;bottom:80px;height:70vh!important}
+  #ai-fab{bottom:16px;right:16px}
+  .main-content{padding:16px 10px 110px}
+}
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#a78bfa" stroke-width="2"/><path d="M8 12h8M12 8v8" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"/></svg>
+  <h1>TUGAS ASAT IPA SEMESTER 2 2026</h1>
+  <span class="badge">SMP NEGERI 37 SEMARANG</span>
+  <span class="badge">Auto Ai</spam>
+</header>
+
+<main class="main-content">
+  <div class="soal-intro">
+    <h2>📋 Petunjuk Pengerjaan</h2>
+    <p>Catat semua soal dan jawaban di bawah ini di kertas folio bergaris, tulis <strong>nama, kelas dan no absen</strong> kalian di pojok kiri atas.</p>
+    <p>Soal pilihan ganda (No. 1–30): tulis semua soal beserta alternatif jawabannya, lalu lingkari huruf jawaban yang paling benar (A, B, C, atau D).</p>
+    <p>Soal uraian (No. 31–40): tulis soal, kemudian jawab dengan format <em>Diketahui – Ditanyakan – Jawab</em> lengkap dengan semua tahapan perhitungan.</p>
+    <p style="margin-top:8px;color:#a78bfa;font-size:.88rem">💡 Klik tombol <strong>"Tanya AI"</strong> di tiap soal atau tekan tombol <strong>AI</strong> di pojok kanan bawah untuk membuka panel AI.</p>
+  </div>
+
+  <div class="soal-grid" id="soal-container">
+    <!-- Generated by JS below -->
+  </div>
+</main>
+
+<!-- Floating AI Button -->
+<div id="ai-fab-label">Tanya AI ✨</div>
+<button id="ai-fab" title="Buka Panel AI" aria-label="Buka Panel AI">
+  <svg width="26" height="26" fill="none" viewBox="0 0 24 24"><path d="M12 3C7.03 3 3 7.03 3 12s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16.5c-4.14 0-7.5-3.36-7.5-7.5S7.86 4.5 12 4.5s7.5 3.36 7.5 7.5-3.36 7.5-7.5 7.5z" fill="#fff" opacity=".3"/><path d="M9 9h2v6H9V9zm4 0h2v6h-2V9z" fill="#fff"/><circle cx="12" cy="12" r="3" fill="#fff" opacity=".85"/><path d="M12 7v2M12 15v2M7 12H9M15 12h2" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+</button>
+
+<!-- AI Panel -->
+<div id="ai-panel" role="dialog" aria-label="Panel AI">
+  <div id="ai-panel-header">
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#a78bfa" stroke-width="2"/><path d="M8 12h8M12 8v8" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"/></svg>
+    <span id="ai-panel-title">AI Assistant 🤖</span>
+    <button class="panel-btn" id="btn-clear-chat" title="Hapus chat">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <button class="panel-btn" id="btn-close-panel" title="Tutup">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <div id="ai-toolbar">
+    <div class="toolbar-row">
+      <span class="toolbar-label">Model:</span>
+      <select id="model-select" class="ai-select">
+        <optgroup label="Google Gemini">
+        <option value="gemini-3.5-flash">✦ Gemini 3.5 Flash</option>
+        <option value="gemini-3.1-flash">✦ Gemini 3.1 Flash</option>
+        <option value="gemini-3.1-flash-lite">✦ Gemini 3.1 Flash-Lite</option>
+        <option value="gemini-3.0-flash">✦ Gemini 3.0 Flash</option>
+        <option value="gemini-2.5-flash">✦ Gemini 2.5 Flash</option>
+        <option value="gemini-2.0-flash">✦ Gemini 2.0 Flash</option>
+        <option value="gemini-1.5-flash">✦ Gemini 1.5 Flash</option>
+        <option value="gemini-1.0-flash">✦ Gemini 1.0 Flash</option>
+        </optgroup>
+        <optgroup label="OpenAI">
+        <option value="gpt-5.4-mini">🚀 ChatGPT 5.4 Mini</option>
+        <option value="gpt-5-mini">⚡ ChatGPT 5 Mini</option>
+        <option value="gpt-5-thinking-mini">🧠 ChatGPT 5 Thinking Mini</option>
+        <option value="gpt-5.1-codex-mini">💻 ChatGPT 5.1 Codex Mini</option>
+        <option value="gpt-4.1-mini">🔹 ChatGPT 4.1 Mini</option>
+        <option value="gpt-4o-mini">🤖 ChatGPT 4o Mini</option>
+        <option value="o4-mini">⚙️ ChatGPT o4 Mini</option>
+        <option value="gpt-4o">💡 ChatGPT 4o</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="toolbar-row">
+      <span class="toolbar-label">Soal:</span>
+      <select id="soal-select" class="soal-select">
+        <option value="">— Pilih —</option>
+      </select>
+      <button id="btn-load-soal" class="btn-load-soal">Muat Soal</button>
+    </div>
+  </div>
+
+  <div id="ai-messages">
+    <div class="msg ai">
+      👋 Halo! Saya AI Assistant untuk TUGAS ASAT IPA SMP 37 Semarang.<br><br>
+      Kamu bisa:<br>
+      • Pilih soal dari dropdown lalu klik <strong>Muat Soal</strong><br>
+      • Upload foto/file soal atau jawaban<br>
+      • Ketik pertanyaanmu langsung<br><br>
+      Saya akan bantu jelaskan dengan langkah-langkah lengkap! 🎓
+      <div class="msg-time">Sekarang</div>
+    </div>
+  </div>
+
+  <div id="ai-input-area">
+    <div id="ai-file-preview"></div>
+    <div class="input-row">
+      <button class="btn-upload" id="btn-upload" title="Upload file (gambar, PDF, dll)">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <textarea id="ai-text-input" placeholder="Ketik pertanyaan atau minta AI bantu soal..." rows="1"></textarea>
+      <button class="btn-send" id="btn-send" title="Kirim">
+        <svg width="17" height="17" fill="none" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="ai-resize-handle" title="Ubah ukuran">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M11 2L2 11M11 6L6 11M11 10L10 11"/><path d="M11 2L2 11M11 6L6 11M11 10L10 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </div>
+</div>
+
+<input type="file" id="file-input-hidden" multiple accept="*/*"/>
+
+<div id="toast"></div>
+
+<script>
+// ─── SOAL DATA ────────────────────────────────────────────────────────────────
+const SOAL_LIST = [
+  {
+    no: 1, topic: "Usaha dan Energi",
+    text: "Sebuah balok ditarik dengan gaya 50 N sehingga berpindah sejauh 4 meter ke arah timur. Jika gaya yang diberikan membentuk sudut 60° terhadap arah perpindahan, maka besar usaha yang dilakukan oleh gaya tersebut adalah …",
+    options: ["A. 50 joule","B. 100 joule","C. 150 joule","D. 200 joule"], type:"pg"
+  },
+  {
+    no: 2, topic: "Daya",
+    text: "Seorang siswa mendorong meja dengan gaya 200 N sehingga meja berpindah sejauh 3 meter dalam waktu 10 detik. Besarnya daya yang dikeluarkan siswa tersebut adalah …",
+    options: ["A. 60 watt","B. 600 watt","C. 6.000 watt","D. 60.000 watt"], type:"pg"
+  },
+  {
+    no: 3, topic: "Energi Kinetik",
+    text: "Sebuah sepeda motor bermassa 100 kg bergerak dengan kecepatan 36 km/jam. Besarnya energi kinetik sepeda motor tersebut adalah …",
+    options: ["A. 500 joule","B. 1.000 joule","C. 5.000 joule","D. 10.000 joule"], type:"pg"
+  },
+  {
+    no: 4, topic: "Energi Potensial",
+    text: "Sebuah bola besi bermassa 2 kg diletakkan di atas lemari setinggi 3 meter dari lantai. Jika percepatan gravitasi 9,8 m/s², maka energi potensial bola besi terhadap permukaan lantai adalah …",
+    options: ["A. 19,6 joule","B. 29,4 joule","C. 58,8 joule","D. 117,6 joule"], type:"pg"
+  },
+  {
+    no: 5, topic: "Tekanan Hidrostatis",
+    text: "Seorang penyelam berada pada kedalaman 5 meter di bawah permukaan laut. Jika massa jenis air laut 1.025 kg/m³ dan percepatan gravitasi 10 m/s², maka tekanan hidrostatis yang dialami penyelam adalah …",
+    options: ["A. 5.125 Pa","B. 10.250 Pa","C. 51.250 Pa","D. 102.500 Pa"], type:"pg"
+  },
+  {
+    no: 6, topic: "Hukum Pascal",
+    text: "Sebuah dongkrak hidrolik memiliki luas penampang kecil 10 cm² dan luas penampang besar 100 cm². Jika gaya yang diberikan pada penampang kecil adalah 50 N, maka gaya angkat yang dihasilkan pada penampang besar adalah …",
+    options: ["A. 5 N","B. 50 N","C. 500 N","D. 5.000 N"], type:"pg"
+  },
+  {
+    no: 7, topic: "Hukum Archimedes (Terapung, Melayang, Tenggelam)",
+    text: "Sebuah benda memiliki volume 500 cm³ dan massa 400 gram. Jika benda tersebut dimasukkan ke dalam air (ρ air = 1 g/cm³), maka benda akan …",
+    options: [
+      "A. terapung karena massa jenis benda lebih kecil dari massa jenis air",
+      "B. melayang karena massa jenis benda sama dengan massa jenis air",
+      "C. tenggelam karena massa jenis benda lebih besar dari massa jenis air",
+      "D. terapung karena massa benda lebih besar dari volume benda"
+    ], type:"pg"
+  },
+  {
+    no: 8, topic: "Massa Jenis dan Sifat Benda di Air",
+    text: "Sebuah balok kayu bermassa jenis 0,6 g/cm³ dimasukkan ke dalam air laut yang massa jenisnya 1,03 g/cm³. Bagian balok yang tercelup dalam air laut sebesar …",
+    options: ["A. 58,25%","B. 60,00%","C. 68,75%","D. 70,00%"], type:"pg"
+  },
+  {
+    no: 9, topic: "Hukum Archimedes (Gaya Ke Atas)",
+    text: "Sebuah batu dengan volume 0,02 m³ dicelupkan seluruhnya ke dalam air (ρ = 1000 kg/m³, g = 10 m/s²). Besarnya gaya ke atas yang dialami batu adalah …",
+    options: ["A. 2 N","B. 20 N","C. 200 N","D. 2.000 N"], type:"pg"
+  },
+  {
+    no: 10, topic: "Pipa U (Perbedaan Tinggi Permukaan Zat Cair)",
+    text: "Pipa U diisi air (ρ = 1 g/cm³) dan minyak (ρ = 0,8 g/cm³). Jika tinggi kolom minyak dari bidang batas adalah 12 cm, maka tinggi kolom air dari bidang batas adalah …",
+    options: ["A. 6,0 cm","B. 7,5 cm","C. 9,6 cm","D. 15,0 cm"], type:"pg"
+  },
+  {
+    no: 11, topic: "Usaha",
+    text: "Seorang anak mendorong tembok dengan gaya yang sangat besar namun tembok tidak bergerak sama sekali. Meskipun anak tersebut merasa lelah, secara fisika usaha yang dilakukan terhadap tembok dikatakan nol. Mengapa demikian?",
+    options: [
+      "A. Karena gaya yang diberikan tegak lurus terhadap arah perpindahan.",
+      "B. Karena tidak terjadi perpindahan benda searah dengan gaya.",
+      "C. Karena gaya yang diberikan lebih kecil daripada gaya gesek tembok.",
+      "D. Karena usaha hanya terjadi jika benda bergerak melingkar."
+    ], type:"pg"
+  },
+  {
+    no: 12, topic: "Daya",
+    text: "Dua orang pekerja memindahkan tumpukan pasir yang sama beratnya ke ketinggian yang sama. Pekerja A melakukannya dalam waktu 2 menit, sedangkan pekerja B dalam waktu 5 menit. Pernyataan yang benar mengenai daya kedua pekerja adalah …",
+    options: [
+      "A. Daya pekerja A lebih kecil karena waktu lebih singkat.",
+      "B. Daya pekerja A lebih besar karena waktu lebih singkat.",
+      "C. Daya kedua pekerja sama karena usaha yang sama.",
+      "D. Daya pekerja B lebih besar karena waktu lebih lama."
+    ], type:"pg"
+  },
+  {
+    no: 13, topic: "Energi Kinetik",
+    text: "Sebuah mobil bermassa besar bergerak dengan kecepatan tinggi. Tiba-tiba pengemudi mengerem hingga mobil berhenti. Pernyataan berikut yang paling tepat menjelaskan perubahan energi yang terjadi adalah …",
+    options: [
+      "A. Energi kinetik mobil berubah menjadi energi potensial gravitasi.",
+      "B. Energi kinetik mobil berubah menjadi energi panas dan bunyi akibat gesekan.",
+      "C. Energi kinetik mobil hilang begitu saja tanpa berubah menjadi energi lain.",
+      "D. Energi kinetik mobil berubah menjadi energi kimia di dalam mesin."
+    ], type:"pg"
+  },
+  {
+    no: 14, topic: "Energi Potensial",
+    text: "Seorang anak bermain di atas ayunan. Posisi anak yang memiliki energi potensial gravitasi terbesar adalah …",
+    options: [
+      "A. Saat berada di titik terendah ayunan.",
+      "B. Saat berada di titik tengah ayunan.",
+      "C. Saat berada di titik tertinggi ayunan.",
+      "D. Saat ayunan bergerak dengan kecepatan maksimum."
+    ], type:"pg"
+  },
+  {
+    no: 15, topic: "Tekanan Hidrostatis",
+    text: "Dua bejana berisi zat cair yang berbeda. Bejana A berisi air setinggi 20 cm, sedangkan bejana B berisi minyak setinggi 25 cm. Jika massa jenis air 1 g/cm³ dan massa jenis minyak 0,8 g/cm³, maka tekanan hidrostatis di dasar bejana …",
+    options: [
+      "A. Bejana A lebih besar.",
+      "B. Bejana B lebih besar.",
+      "C. Keduanya sama besar.",
+      "D. Tidak dapat dibandingkan."
+    ], type:"pg"
+  },
+  {
+    no: 16, topic: "Hukum Pascal",
+    text: "Sebuah rem hidrolik pada kendaraan bekerja berdasarkan Hukum Pascal. Saat pedal rem ditekan, tekanan disalurkan ke semua roda secara merata. Mengapa hal ini dapat terjadi?",
+    options: [
+      "A. Karena zat cair dalam rem memiliki massa jenis yang sangat besar.",
+      "B. Karena tekanan dalam zat cair diteruskan sama besar ke segala arah.",
+      "C. Karena volume zat cair dalam rem selalu bertambah saat pedal ditekan.",
+      "D. Karena gaya yang diterima roda lebih kecil daripada gaya pada pedal."
+    ], type:"pg"
+  },
+  {
+    no: 17, topic: "Gaya Archimedes",
+    text: "Seseorang dengan massa 60 kg terapung di atas air laut (ρ = 1.025 kg/m³). Volume tubuh orang tersebut yang tercelup ke dalam air adalah …",
+    options: [
+      "A. 0,0585 m³",
+      "B. 0,0600 m³",
+      "C. 0,0610 m³",
+      "D. 0,0615 m³"
+    ], type:"pg"
+  },
+  {
+    no: 18, topic: "Tekanan Udara",
+    text: "Sebuah balon udara panas dapat naik ke udara karena …",
+    options: [
+      "A. Massa jenis udara panas di dalam balon lebih besar dari udara luar.",
+      "B. Massa jenis udara panas di dalam balon lebih kecil dari udara luar.",
+      "C. Tekanan udara panas di dalam balon lebih besar dari tekanan udara luar.",
+      "D. Gaya gravitasi pada balon berkurang saat suhu udara meningkat."
+    ], type:"pg"
+  },
+  {
+    no: 19, topic: "Hukum Archimedes – Terapung",
+    text: "Sepotong gabus diletakkan di atas permukaan air dan terapung. Hal ini membuktikan bahwa …",
+    options: [
+      "A. Gaya apung pada gabus lebih kecil dari berat gabus.",
+      "B. Berat gabus sama dengan gaya apung yang diterimanya.",
+      "C. Massa jenis gabus lebih kecil daripada massa jenis air.",
+      "D. Berat gabus lebih besar daripada gaya apung yang diterimanya."
+    ], type:"pg"
+  },
+  {
+    no: 20, topic: "Hukum Archimedes – Melayang",
+    text: "Sebuah telur dimasukkan ke dalam gelas berisi air tawar, telur tenggelam. Ketika ditambahkan garam ke dalam air dan diaduk hingga larut, telur tersebut melayang di dalam larutan garam. Hal ini disebabkan oleh …",
+    options: [
+      "A. Berat telur bertambah karena menyerap garam.",
+      "B. Massa jenis larutan garam lebih kecil dari massa jenis telur.",
+      "C. Massa jenis larutan garam menjadi sama dengan massa jenis telur.",
+      "D. Gaya apung yang bekerja pada telur berkurang akibat garam."
+    ], type:"pg"
+  },
+  {
+    no: 21, topic: "Hukum Archimedes – Tenggelam",
+    text: "Sebuah batu besi dilepaskan di permukaan air dan ternyata langsung tenggelam ke dasar. Pernyataan yang paling tepat menjelaskan peristiwa tersebut adalah …",
+    options: [
+      "A. Berat batu besi lebih besar daripada gaya apung maksimum yang dapat diberikan air.",
+      "B. Gaya apung yang diberikan air lebih besar daripada berat batu besi.",
+      "C. Massa jenis batu besi lebih kecil daripada massa jenis air.",
+      "D. Volume batu besi terlalu kecil sehingga tidak mendapat gaya apung."
+    ], type:"pg"
+  },
+  {
+    no: 22, topic: "Massa Jenis dan Sifat Benda di Air",
+    text: "Tiga buah benda yang berbeda dimasukkan ke dalam air. Benda X tenggelam, benda Y melayang, dan benda Z terapung. Berdasarkan peristiwa tersebut, urutan massa jenis benda dari yang terkecil hingga terbesar adalah …",
+    options: ["A. X, Y, Z","B. Y, Z, X","C. Z, Y, X","D. Z, X, Y"], type:"pg"
+  },
+  {
+    no: 23, topic: "Pipa U – Zat Cair Tidak Bercampur",
+    text: "Sebuah pipa U diisi dengan raksa dan air yang tidak bercampur. Pada pipa sebelah kiri diisi air, sedangkan sebelah kanan diisi raksa. Permukaan raksa pada kedua kaki pipa tidak sama tinggi. Hal ini disebabkan oleh …",
+    options: [
+      "A. Perbedaan massa jenis kedua zat cair.",
+      "B. Perbedaan volume kedua zat cair.",
+      "C. Perbedaan suhu kedua zat cair.",
+      "D. Perbedaan tekanan atmosfer pada kedua kaki."
+    ], type:"pg"
+  },
+  {
+    no: 24, topic: "Hukum Archimedes – Gaya Apung",
+    text: "Sebuah kapal besar yang terbuat dari logam dapat terapung di laut, meskipun logam memiliki massa jenis lebih besar daripada air. Mengapa hal ini dapat terjadi?",
+    options: [
+      "A. Karena kapal memiliki bentuk yang aerodinamis sehingga mengurangi berat.",
+      "B. Karena kapal memiliki ruang kosong yang besar sehingga massa jenis rata-ratanya lebih kecil dari air laut.",
+      "C. Karena gaya gravitasi di laut lebih kecil daripada di darat.",
+      "D. Karena air laut memiliki massa jenis yang lebih kecil dari air tawar."
+    ], type:"pg"
+  },
+  {
+    no: 25, topic: "Energi – Konversi",
+    text: "Air terjun yang deras dimanfaatkan untuk memutar turbin pembangkit listrik tenaga air (PLTA). Perubahan bentuk energi yang terjadi secara berurutan dari awal hingga menghasilkan energi listrik adalah …",
+    options: [
+      "A. Energi kinetik → energi potensial → energi listrik.",
+      "B. Energi potensial → energi kinetik → energi listrik.",
+      "C. Energi mekanik → energi bunyi → energi listrik.",
+      "D. Energi kimia → energi panas → energi listrik."
+    ], type:"pg"
+  },
+  {
+    no: 26, topic: "Getaran dan Gelombang Bunyi",
+    text: "Ketika kamu memukul gong, terdengar bunyi yang kuat dan lama. Gong tersebut bergetar dengan frekuensi tertentu. Jika frekuensi getaran gong semakin tinggi, maka bunyi yang dihasilkan akan …",
+    options: ["A. Semakin keras.","B. Semakin pelan.","C. Semakin tinggi (nada).","D. Semakin rendah (nada)."], type:"pg"
+  },
+  {
+    no: 27, topic: "Tekanan Hidrostatis – Aplikasi",
+    text: "Dokter menggunakan alat tensimeter untuk mengukur tekanan darah. Prinsip kerja tensimeter didasarkan pada tekanan hidrostatis yang diubah menjadi tekanan udara. Semakin tinggi lengan pasien diletakkan relatif terhadap jantung, maka hasil pengukuran tekanan darah akan …",
+    options: [
+      "A. Semakin besar karena tekanan hidrostatis darah lebih tinggi.",
+      "B. Semakin kecil karena tekanan hidrostatis darah lebih rendah.",
+      "C. Tetap sama karena tekanan darah tidak dipengaruhi posisi.",
+      "D. Tidak terukur karena alat tidak berfungsi."
+    ], type:"pg"
+  },
+  {
+    no: 28, topic: "Hukum Pascal – Aplikasi",
+    text: "Sebuah alat press hidrolik digunakan untuk menekan benda. Luas penampang input adalah 2 cm² dan luas penampang output adalah 40 cm². Jika gaya input yang diberikan 25 N, maka gaya output yang dihasilkan adalah …",
+    options: ["A. 50 N","B. 250 N","C. 500 N","D. 1.000 N"], type:"pg"
+  },
+  {
+    no: 29, topic: "Massa Jenis dan Hukum Archimedes",
+    text: "Sebuah benda dapat melayang di dalam air tawar. Jika benda yang sama dimasukkan ke dalam air laut yang massa jenisnya lebih besar, maka benda akan…",
+    options: [
+      "A. Tetap melayang.",
+      "B. Terapung dengan bagian yang tercelup lebih sedikit.",
+      "C. Terapung dengan bagian yang tercelup lebih banyak.",
+      "D. Tenggelam."
+    ], type:"pg"
+  },
+  {
+    no: 30, topic: "Penerapan Hukum Archimedes – Kapal Selam",
+    text: "Kapal selam dapat mengapung, melayang, dan tenggelam di air laut dengan cara mengatur volume air di dalam tangki pemberatnya. Ketika kapal selam ingin tenggelam, maka kapal selam akan …",
+    options: [
+      "A. Mengeluarkan air dari tangki pemberat agar massa jenis kapal lebih kecil dari air laut.",
+      "B. Memasukkan air ke dalam tangki pemberat agar massa jenis kapal lebih besar dari air laut.",
+      "C. Memasukkan udara bertekanan tinggi ke dalam tangki pemberat.",
+      "D. Mengurangi berat kapal dengan membuang muatan."
+    ], type:"pg"
+  },
+  // ─── URAIAN ─────────────────────────────────────────────────────────────────
+  {
+    no: 31, topic: "Energi Kinetik – Mencari Massa Benda",
+    text: "Sebuah mobil bergerak di jalan raya dengan kecepatan 20 m/s. Jika energi kinetik yang dimiliki mobil tersebut adalah 400.000 joule, hitunglah besarnya massa mobil tersebut!",
+    type:"uraian"
+  },
+  {
+    no: 32, topic: "Energi Kinetik – Mencari Kecepatan Benda",
+    text: "Sebuah bola bermassa 2 kg dilempar sehingga memiliki energi kinetik sebesar 100 joule. Berapakah kecepatan bola tersebut saat bergerak?",
+    type:"uraian"
+  },
+  {
+    no: 33, topic: "Energi Potensial – Mencari Massa Benda",
+    text: "Sebuah batu berada pada ketinggian 5 meter di atas permukaan tanah. Jika energi potensial yang dimiliki batu tersebut adalah 250 joule dan percepatan gravitasi di tempat itu 10 m/s², tentukanlah massa batu tersebut!",
+    type:"uraian"
+  },
+  {
+    no: 34, topic: "Energi Potensial – Mencari Ketinggian Benda",
+    text: "Buah kelapa bermassa 1,5 kg jatuh dari pohonnya. Saat berada pada ketinggian tertentu, energi potensial buah kelapa tercatat sebesar 90 joule. Apabila percepatan gravitasi di tempat itu 10 m/s², hitunglah ketinggian buah kelapa tersebut saat itu!",
+    type:"uraian"
+  },
+  {
+    no: 35, topic: "Energi Potensial – Mencari Gaya Gravitasi",
+    text: "Sebuah benda bermassa 4 kg diletakkan di atas lemari setinggi 2 meter dari lantai. Jika energi potensial yang dimiliki benda tersebut adalah 80 joule, tentukanlah besarnya percepatan gravitasi di tempat tersebut!",
+    type:"uraian"
+  },
+  {
+    no: 36, topic: "Hubungan Frekuensi dan Periode – Mencari Frekuensi",
+    text: "Sebuah bandul sederhana melakukan 120 getaran dalam waktu 1 menit. Hitunglah frekuensi getaran bandul tersebut!",
+    type:"uraian"
+  },
+  {
+    no: 37, topic: "Hubungan Frekuensi dan Periode – Mencari Periode",
+    text: "Sebuah garputala bergetar dengan frekuensi 500 Hz. Berapakah periode getaran garputala tersebut?",
+    type:"uraian"
+  },
+  {
+    no: 38, topic: "Dongkrak Hidrolik – Gaya Dorong ke Atas",
+    text: "Sebuah dongkrak hidrolik memiliki luas penampang kecil 5 cm² dan luas penampang besar 200 cm². Jika pada penampang kecil diberikan gaya tekan sebesar 100 N, hitunglah besarnya gaya angkat (gaya dorong ke atas) yang dihasilkan pada penampang besar!",
+    type:"uraian"
+  },
+  {
+    no: 39, topic: "Hukum Archimedes – Massa Jenis dan Sifat Terapung/Melayang/Tenggelam",
+    text: "Sebuah balok kayu bermassa 600 gram memiliki volume 1.000 cm³. Balok tersebut dimasukkan ke dalam air yang massa jenisnya 1 g/cm³. Apakah balok kayu akan terapung, melayang, atau tenggelam? Buktikan dengan perhitungan massa jenis balok!",
+    type:"uraian"
+  },
+  {
+    no: 40, topic: "Pipa U – Perbedaan Tinggi Permukaan Dua Zat Cair",
+    text: "Sebuah pipa U diisi dengan air (massa jenis 1 g/cm³) pada satu kaki dan minyak (massa jenis 0,8 g/cm³) pada kaki lainnya. Jika tinggi permukaan air diukur dari batas bidang batas adalah 10 cm, hitunglah perbedaan tinggi permukaan antara air dan minyak! (Tinggi minyak diukur dari bidang batas yang sama)",
+    type:"uraian"
+  },
+];
+
+// ─── RENDER SOAL ─────────────────────────────────────────────────────────────
+function renderSoalList() {
+  const container = document.getElementById('soal-container');
+  const soalSel = document.getElementById('soal-select');
+  container.innerHTML = '';
+  soalSel.innerHTML = '<option value="">— Pilih Soal —</option>';
+
+  SOAL_LIST.forEach(s => {
+    // Dropdown option
+    const opt = document.createElement('option');
+    opt.value = s.no;
+    opt.textContent = `No. ${s.no} – ${s.topic}`;
+    soalSel.appendChild(opt);
+
+    // Card
+    const card = document.createElement('div');
+    card.className = 'soal-card';
+    card.id = `soal-${s.no}`;
+
+    let inner = `
+      <div class="soal-number">${s.no}</div>
+      <div class="soal-topic">${s.topic}</div>
+      <div class="soal-text">${s.text}</div>
+    `;
+    if (s.type === 'pg') {
+      inner += `<ul class="soal-options">`;
+      s.options.forEach(op => {
+        inner += `<li><span>${op.charAt(0)}.</span>${op.substring(2)}</li>`;
+      });
+      inner += `</ul>`;
+    } else {
+      inner += `<div class="soal-uraian">✏️ Soal uraian — jawab lengkap dengan Diketahui, Ditanyakan, dan Jawab.</div>`;
+    }
+    inner += `<button class="btn-ask-ai" onclick="askAIAboutSoal(${s.no})">
+      <svg fill="none" viewBox="0 0 24 24"><path d="M12 3C7.03 3 3 7.03 3 12s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z" stroke="currentColor" stroke-width="2"/><path d="M12 8v4l2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Tanya AI
+    </button>`;
+
+    card.innerHTML = inner;
+    container.appendChild(card);
+  });
+}
+
+// ─── AI PANEL STATE ───────────────────────────────────────────────────────────
+let panelOpen = false;
+let pendingFiles = []; // {file, name, type, base64}
+
+function openPanel() {
+  panelOpen = true;
+  document.getElementById('ai-panel').classList.add('visible');
+  document.getElementById('ai-fab').classList.add('active');
+  document.getElementById('ai-fab-label').style.display = 'none';
+}
+function closePanel() {
+  panelOpen = false;
+  document.getElementById('ai-panel').classList.remove('visible');
+  document.getElementById('ai-fab').classList.remove('active');
+  document.getElementById('ai-fab-label').style.display = '';
+}
+
+document.getElementById('ai-fab').addEventListener('click', () => {
+  panelOpen ? closePanel() : openPanel();
+});
+document.getElementById('btn-close-panel').addEventListener('click', closePanel);
+document.getElementById('btn-clear-chat').addEventListener('click', () => {
+  document.getElementById('ai-messages').innerHTML = `
+    <div class="msg ai">Chat dibersihkan. Siap membantu kamu lagi! 🎓<div class="msg-time">Sekarang</div></div>`;
+});
+
+// ─── SOAL LOAD ────────────────────────────────────────────────────────────────
+document.getElementById('btn-load-soal').addEventListener('click', () => {
+  const v = document.getElementById('soal-select').value;
+  if (!v) return showToast('Pilih nomor soal dulu!');
+  const soal = SOAL_LIST.find(s => s.no == v);
+  if (!soal) return;
+  let ctx = `Soal No. ${soal.no} – ${soal.topic}\n\n${soal.text}`;
+  if (soal.options) ctx += '\n\nPilihan jawaban:\n' + soal.options.join('\n');
+  document.getElementById('ai-text-input').value =
+    `Tolong bantu jelaskan dan pecahkan Soal No. ${soal.no} (${soal.topic}) ini langkah demi langkah:\n\n${soal.text}`;
+  if (soal.options) {
+    document.getElementById('ai-text-input').value +=
+      '\n\nPilihan:\n' + soal.options.join('\n') + '\n\nBeri jawaban yang benar beserta penjelasan lengkap!';
+  }
+  autoResizeTextarea();
+  openPanel();
+  showToast(`Soal No. ${soal.no} dimuat ✅`);
+});
+
+// ─── QUICK BUTTON: Tanya AI from card ────────────────────────────────────────
+function askAIAboutSoal(no) {
+  const soal = SOAL_LIST.find(s => s.no == no);
+  if (!soal) return;
+  document.getElementById('soal-select').value = no;
+  document.getElementById('ai-text-input').value =
+    `Tolong bantu jelaskan dan pecahkan Soal No. ${soal.no} (${soal.topic}) langkah demi langkah:\n\n${soal.text}`;
+  if (soal.options) {
+    document.getElementById('ai-text-input').value +=
+      '\n\nPilihan:\n' + soal.options.join('\n') + '\n\nJelaskan jawaban yang benar beserta alasannya!';
+  }
+  autoResizeTextarea();
+  openPanel();
+  document.getElementById('ai-text-input').focus();
+}
+
+// ─── FILE UPLOAD ──────────────────────────────────────────────────────────────
+document.getElementById('btn-upload').addEventListener('click', () => {
+  document.getElementById('file-input-hidden').click();
+});
+document.getElementById('file-input-hidden').addEventListener('change', (e) => {
+  const files = Array.from(e.target.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const b64 = reader.result.split(',')[1];
+      pendingFiles.push({ file, name: file.name, type: file.type, base64: b64, size: file.size });
+      renderFilePreview();
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+});
+
+function renderFilePreview() {
+  const area = document.getElementById('ai-file-preview');
+  area.innerHTML = '';
+  pendingFiles.forEach((pf, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'fpreview-chip';
+    const icon = pf.type.startsWith('image/') ? '🖼️' : pf.type === 'application/pdf' ? '📄' : '📎';
+    chip.innerHTML = `<span>${icon} ${pf.name.length>22?pf.name.slice(0,20)+'…':pf.name}</span><button class="fpreview-remove" data-i="${i}" title="Hapus">×</button>`;
+    area.appendChild(chip);
+  });
+  area.querySelectorAll('.fpreview-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      pendingFiles.splice(+btn.dataset.i, 1);
+      renderFilePreview();
+    });
+  });
+}
+
+// ─── SEND MESSAGE ─────────────────────────────────────────────────────────────
+async function sendMessage() {
+  const inputEl = document.getElementById('ai-text-input');
+  const msg = inputEl.value.trim();
+  if (!msg && pendingFiles.length === 0) return;
+
+  const model = document.getElementById('model-select').value;
+  const messagesEl = document.getElementById('ai-messages');
+  const sendBtn = document.getElementById('btn-send');
+  sendBtn.disabled = true;
+
+  // Render user message
+  let userContent = '';
+  if (pendingFiles.length > 0) {
+    userContent += `<div class="attached-files">`;
+    pendingFiles.forEach(pf => {
+      const icon = pf.type.startsWith('image/') ? '🖼️' : pf.type === 'application/pdf' ? '📄' : '📎';
+      userContent += `<span class="file-chip"><svg width="11" height="11" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="currentColor" stroke-width="2"/></svg>${icon} ${pf.name.length>20?pf.name.slice(0,18)+'…':pf.name}</span>`;
+    });
+    userContent += `</div>`;
+  }
+  if (msg) userContent += escapeHtml(msg).replace(/\n/g, '<br>');
+
+  appendMsg('user', userContent);
+  inputEl.value = '';
+  autoResizeTextarea();
+
+  // Typing indicator
+  const typingId = appendTyping();
+
+  try {
+    const formData = new FormData();
+    formData.append('message', msg);
+    formData.append('model', model);
+    pendingFiles.forEach(pf => formData.append('files', pf.file));
+
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      body: formData,
+    });
+    const data = await res.json();
+
+    removeTyping(typingId);
+
+    if (data.error) {
+      appendMsg('ai', `<span style="color:var(--error)">❌ Error: ${escapeHtml(data.error)}</span>`);
+    } else {
+      renderAIMessage(data.response);
+    }
+  } catch (err) {
+    removeTyping(typingId);
+    appendMsg('ai', `<span style="color:var(--error)">❌ Koneksi gagal: ${escapeHtml(err.message)}</span>`);
+  } finally {
+    sendBtn.disabled = false;
+    pendingFiles = [];
+    renderFilePreview();
+  }
+}
+
+document.getElementById('btn-send').addEventListener('click', sendMessage);
+document.getElementById('ai-text-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+document.getElementById('ai-text-input').addEventListener('input', autoResizeTextarea);
+
+function autoResizeTextarea() {
+  const el = document.getElementById('ai-text-input');
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 130) + 'px';
+}
+
+// ─── MESSAGE RENDERING ────────────────────────────────────────────────────────
+function appendMsg(role, html) {
+  const messagesEl = document.getElementById('ai-messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  div.innerHTML = html + `<div class="msg-time">${now}</div>`;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return div;
+}
+
+function renderAIMessage(text) {
+  const div = appendMsg('ai', '');
+  // Parse markdown
+  let html = '';
+  try { html = marked.parse(text); } catch(e) { html = escapeHtml(text); }
+  const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  div.innerHTML = html + `<div class="msg-time">${now}</div>`;
+  // Render math (KaTeX)
+  if (window.renderMathInElement) {
+    renderMathInElement(div, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true },
+      ],
+      throwOnError: false,
+    });
+  }
+  document.getElementById('ai-messages').scrollTop = document.getElementById('ai-messages').scrollHeight;
+}
+
+let typingCounter = 0;
+function appendTyping() {
+  const id = 'typing-' + (++typingCounter);
+  const messagesEl = document.getElementById('ai-messages');
+  const div = document.createElement('div');
+  div.className = 'msg ai typing-wrapper';
+  div.id = id;
+  div.innerHTML = `<div class="typing"><span></span><span></span><span></span></div>`;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return id;
+}
+function removeTyping(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function escapeHtml(t) {
+  return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── DRAG TO MOVE PANEL ───────────────────────────────────────────────────────
+(function() {
+  const panel = document.getElementById('ai-panel');
+  const header = document.getElementById('ai-panel-header');
+  let dragging = false, ox = 0, oy = 0;
+
+  header.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.panel-btn')) return;
+    dragging = true;
+    const rect = panel.getBoundingClientRect();
+    ox = e.clientX - rect.left;
+    oy = e.clientY - rect.top;
+    panel.style.transition = 'none';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    let nx = e.clientX - ox;
+    let ny = e.clientY - oy;
+    nx = Math.max(0, Math.min(nx, window.innerWidth - panel.offsetWidth));
+    ny = Math.max(0, Math.min(ny, window.innerHeight - panel.offsetHeight));
+    panel.style.left = nx + 'px';
+    panel.style.top = ny + 'px';
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
+  });
+  document.addEventListener('mouseup', () => { dragging = false; });
+
+  // Touch drag
+  header.addEventListener('touchstart', (e) => {
+    if (e.target.closest('.panel-btn')) return;
+    const t = e.touches[0];
+    const rect = panel.getBoundingClientRect();
+    ox = t.clientX - rect.left; oy = t.clientY - rect.top;
+    dragging = true;
+  }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    if (!dragging) return;
+    const t = e.touches[0];
+    let nx = t.clientX - ox, ny = t.clientY - oy;
+    nx = Math.max(0, Math.min(nx, window.innerWidth - panel.offsetWidth));
+    ny = Math.max(0, Math.min(ny, window.innerHeight - panel.offsetHeight));
+    panel.style.left = nx + 'px'; panel.style.top = ny + 'px';
+    panel.style.right = 'auto'; panel.style.bottom = 'auto';
+  }, { passive: true });
+  document.addEventListener('touchend', () => { dragging = false; });
+})();
+
+// ─── RESIZE HANDLE ────────────────────────────────────────────────────────────
+(function() {
+  const panel = document.getElementById('ai-panel');
+  const handle = document.getElementById('ai-resize-handle');
+  let resizing = false, startX, startY, startW, startH;
+
+  handle.addEventListener('mousedown', (e) => {
+    resizing = true;
+    startX = e.clientX; startY = e.clientY;
+    startW = panel.offsetWidth; startH = panel.offsetHeight;
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!resizing) return;
+    const nw = Math.max(320, startW + e.clientX - startX);
+    const nh = Math.max(380, startH + e.clientY - startY);
+    panel.style.width = nw + 'px';
+    panel.style.height = nh + 'px';
+  });
+  document.addEventListener('mouseup', () => { resizing = false; });
+})();
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderSoalList();
+
+// KaTeX auto-render after load
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.renderMathInElement) {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true },
+      ],
+      throwOnError: false,
+    });
+  }
+});
+</script>
+</body>
+</html>
