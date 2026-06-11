@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "xayzcrk.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/xayzcrk.js"
+    }
+  ],
+  "functions": {
+    "xayzcrk.js": {
+      "maxDuration": 300
+    }
+  }
+}
