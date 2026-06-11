@@ -81,14 +81,33 @@ const upload = multer({
 // ─── MIDDLEWARE ─────────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(express.static(path.join(__dirname, 'auto-ai')));
+// Static assets dari semua folder
+app.use('/auto-ai', express.static(path.join(__dirname, 'auto-ai')));
+app.use('/original', express.static(path.join(__dirname, 'original')));
+app.use('/jawaban-ipa', express.static(path.join(__dirname, 'jawaban-ipa')));
 
-// ─── REDIRECT ROOT TO /auto-ai ──────────────────────────────────────────────────
+// ─── ROUTES ─────────────────────────────────────────────────────────────────────
+// Root → halaman utama index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// /original → ipa37-ori.html
+app.get('/original', (req, res) => {
+  res.sendFile(path.join(__dirname, 'original', 'ipa37-ori.html'));
+});
+
+// /jawaban-ipa → Jawaban-ASAT-IPA.html
+app.get('/jawaban-ipa', (req, res) => {
+  res.sendFile(path.join(__dirname, 'jawaban-ipa', 'Jawaban-ASAT-IPA.html'));
+});
+
+// /auto-ai → redirect ke /ipa/auto-ai
 app.get('/auto-ai', (req, res) => {
   res.redirect('/ipa/auto-ai');
 });
 
-// ─── MAIN PAGE ──────────────────────────────────────────────────────────────────
+// ─── AI PAGE ────────────────────────────────────────────────────────────────────
 app.get('/ipa/auto-ai', (req, res) => {
   res.sendFile(path.join(__dirname, 'auto-ai', 'ipa-auto-ai.html'));
 });
