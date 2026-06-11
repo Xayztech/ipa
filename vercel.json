@@ -11,10 +11,5 @@
       "src": "/(.*)",
       "dest": "/xayzcrk.js"
     }
-  ],
-  "functions": {
-    "xayzcrk.js": {
-      "maxDuration": 300
-    }
-  }
+  ]
 }
